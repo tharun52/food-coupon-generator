@@ -2,21 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Final Image</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Generate</title>
 </head>
 <body>
-  <h1>Your Final Edited Coupon</h1>
-  <img id="finalImage" alt="Edited Coupon" style="max-width: 100%;" />
+  <h1>Generated Coupon Preview</h1>
+  <canvas id="finalCanvas"></canvas>
 
   <script>
-    const finalImageData = localStorage.getItem("editedImage");
+    const editedImage = localStorage.getItem("editedImage");
+    const numberPosition = JSON.parse(localStorage.getItem("numberPosition"));
+    const fontSize = localStorage.getItem("fontSize") || "40";
+    const fontFamily = localStorage.getItem("fontFamily") || "Arial";
+    const fontColor = localStorage.getItem("fontColor") || "#000000";
 
-    if (!finalImageData) {
-      alert("No image found. Redirecting...");
+    if (!editedImage || !numberPosition) {
+      alert("No data found. Please go back and design the coupon.");
       window.location.href = "design.html";
-    } else {
-      document.getElementById("finalImage").src = finalImageData;
     }
+
+    const canvas = document.getElementById("finalCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const img = new Image();
+    img.src = editedImage;
+
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      ctx.font = `${fontSize}px ${fontFamily}`;
+      ctx.fillStyle = fontColor;
+      ctx.fillText("555", numberPosition.x, numberPosition.y);
+    };
   </script>
 </body>
 </html>

@@ -27,6 +27,13 @@
       border-radius: 6px;
       cursor: pointer;
     }
+    .coords {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #333;
+    }
+
+
   </style>
 </head>
 <body>
@@ -54,16 +61,19 @@
       <input type="color" id="fontColor" value="#000000" />
     </label>
 
-    <label>
-      Position:
-      <select id="position">
-        <option value="top-left">Top Left</option>
-        <option value="top-right">Top Right</option>
-        <option value="center">Center</option>
-        <option value="bottom-left">Bottom Left</option>
-        <option value="bottom-right">Bottom Right</option>
-      </select>
-    </label>
+    <label>Position:</label>
+    <select id="positionSelect">
+      <option value="">-- Drag to place or choose --</option>
+      <option value="top-left">Top Left</option>
+      <option value="top-right">Top Right</option>
+      <option value="bottom-left">Bottom Left</option>
+      <option value="bottom-right">Bottom Right</option>
+      <option value="center">Center</option>
+    </select>
+
+    <div id="coordsDisplay" class="coords">X: 0, Y: 0</div>
+
+    
 
     <button class="btn" id="generateBtn">Generate</button>
   </div>
@@ -71,80 +81,190 @@
   <script>
     const canvas = document.getElementById("previewCanvas");
     const ctx = canvas.getContext("2d");
-
+  
     const uploadedImageData = localStorage.getItem("uploadedImage");
-
     if (!uploadedImageData) {
       alert("No uploaded image found. Redirecting...");
       window.location.href = "index.html";
     }
-
+  
     const img = new Image();
     img.src = uploadedImageData;
-
+  
+    let text = "1";
+    let textX = 50;
+    let textY = 50;
+    let dragging = false;
+    let offsetX, offsetY;
+  
+    let fontSize = 40;
+    let fontFamily = "Arial";
+    let fontColor = "#000000";
+  
     img.onload = () => {
       canvas.width = img.width;
       canvas.height = img.height;
-      updatePreview(); // initial draw
+      drawCanvas();
     };
+  
+    function drawCanvas(showGuides = false) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+  
+      // Draw guide lines (center)
+      if (showGuides) {
+        const snapThreshold = 10;
+        const isNearXCenter = Math.abs(textX + textWidth()/2 - canvas.width / 2) < snapThreshold;
+        const isNearYCenter = Math.abs(textY - textHeight()/2 - canvas.height / 2) < snapThreshold;
+  
+        if (isNearXCenter) {
+          ctx.strokeStyle = "#FF0000";
+          ctx.beginPath();
+          ctx.moveTo(canvas.width / 2, 0);
+          ctx.lineTo(canvas.width / 2, canvas.height);
+          ctx.stroke();
+        }
+  
+        if (isNearYCenter) {
+          ctx.strokeStyle = "#00AAFF";
+          ctx.beginPath();
+          ctx.moveTo(0, canvas.height / 2);
+          ctx.lineTo(canvas.width, canvas.height / 2);
+          ctx.stroke();
+        }
+      }
+  
+      // Draw text
+      ctx.font = `${fontSize}px ${fontFamily}`;
+      ctx.fillStyle = fontColor;
+      ctx.fillText(text, textX, textY);
+    }
+  
+    function textWidth() {
+      ctx.font = `${fontSize}px ${fontFamily}`;
+      return ctx.measureText(text).width;
+    }
+  
+    function textHeight() {
+      return fontSize;
+    }
+  
+    function updateFontSettings() {
+      fontSize = parseInt(document.getElementById("fontSize").value);
+      fontFamily = document.getElementById("fontFamily").value;
+      fontColor = document.getElementById("fontColor").value;
+      drawCanvas();
+    }
+  
+    // Drag logic
+    canvas.addEventListener("mousedown", function (e) {
+      const mouseX = e.offsetX;
+      const mouseY = e.offsetY;
+      const width = textWidth();
+      const height = textHeight();
+  
+      if (
+        mouseX >= textX &&
+        mouseX <= textX + width &&
+        mouseY >= textY - height &&
+        mouseY <= textY
+      ) {
+        dragging = true;
+        offsetX = mouseX - textX;
+        offsetY = mouseY - textY;
+      }
+    });
+  
+    canvas.addEventListener("mousemove", function (e) {
+      if (dragging) {
+        textX = e.offsetX - offsetX;
+        textY = e.offsetY - offsetY;
+        drawCanvas(true); // Show guides
 
-    function updatePreview() {
+        document.getElementById("coordsDisplay").innerText = `X: ${Math.round(textX)}, Y: ${Math.round(textY)}`;
+      }
+    });
+
+    canvas.addEventListener("mouseup", () => {
+      dragging = false;
+      drawCanvas();
+      document.getElementById("coordsDisplay").innerText = `X: ${Math.round(textX)}, Y: ${Math.round(textY)}`;
+    });
+;
+  
+    canvas.addEventListener("mouseleave", () => {
+      dragging = false;
+      drawCanvas();
+    });
+  
+    // Dropdown: Position presets
+    document.getElementById("positionSelect").addEventListener("change", () => {
+      const pos = document.getElementById("positionSelect").value;
+      const width = textWidth();
+      const height = textHeight();
+  
+      switch (pos) {
+        case "top-left":
+          textX = 20;
+          textY = 20 + height;
+          break;
+        case "top-right":
+          textX = canvas.width - width - 20;
+          textY = 20 + height;
+          break;
+        case "bottom-left":
+          textX = 20;
+          textY = canvas.height - 20;
+          break;
+        case "bottom-right":
+          textX = canvas.width - width - 20;
+          textY = canvas.height - 20;
+          break;
+        case "center":
+          textX = canvas.width / 2 - width / 2;
+          textY = canvas.height / 2 + height / 2;
+          break;
+      }
+  
+      drawCanvas();
+    });
+  
+    // Font inputs
+    document.getElementById("fontSize").addEventListener("input", updateFontSettings);
+    document.getElementById("fontFamily").addEventListener("change", updateFontSettings);
+    document.getElementById("fontColor").addEventListener("input", updateFontSettings);
+  
+    // Generate
+    generateBtn.onclick = () => {
+      // Get styling values
       const fontSize = document.getElementById("fontSize").value;
       const fontFamily = document.getElementById("fontFamily").value;
       const fontColor = document.getElementById("fontColor").value;
-      const position = document.getElementById("position").value;
 
+      // 1. Draw only the image (no number)
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
 
-      ctx.font = `${fontSize}px ${fontFamily}`;
-      ctx.fillStyle = fontColor;
+      // 2. Save the clean image
+      const cleanImage = canvas.toDataURL();
+      localStorage.setItem("editedImage", cleanImage);
 
-      const text = "555"; // static number for preview
-      const textWidth = ctx.measureText(text).width;
-      const textHeight = parseInt(fontSize, 10);
+      // 3. Save styling and number data
+      localStorage.setItem("numberPosition", JSON.stringify({ x: textX, y: textY }));
+      localStorage.setItem("fontSize", fontSize);
+      localStorage.setItem("fontFamily", fontFamily);
+      localStorage.setItem("fontColor", fontColor);
 
-      let x = 0;
-      let y = 0;
+      // 4. Redraw with the number for preview
+      drawCanvas(true); // this will show the number on screen again
 
-      switch (position) {
-        case "top-left":
-          x = 10;
-          y = textHeight;
-          break;
-        case "top-right":
-          x = canvas.width - textWidth - 10;
-          y = textHeight;
-          break;
-        case "center":
-          x = (canvas.width - textWidth) / 2;
-          y = (canvas.height + textHeight) / 2;
-          break;
-        case "bottom-left":
-          x = 10;
-          y = canvas.height - 10;
-          break;
-        case "bottom-right":
-          x = canvas.width - textWidth - 10;
-          y = canvas.height - 10;
-          break;
-      }
-
-      ctx.fillText(text, x, y);
-    }
-
-    // Attach event listeners for live preview
-    document.getElementById("fontSize").addEventListener("input", updatePreview);
-    document.getElementById("fontFamily").addEventListener("change", updatePreview);
-    document.getElementById("fontColor").addEventListener("input", updatePreview);
-    document.getElementById("position").addEventListener("change", updatePreview);
-
-    // When user clicks "Generate", save canvas image and redirect
-    document.getElementById("generateBtn").addEventListener("click", () => {
-      const finalImage = canvas.toDataURL("image/png");
-      localStorage.setItem("editedImage", finalImage);
+      // 5. Redirect to generate.html
       window.location.href = "generate.html";
-    });
+    };
+
+
   </script>
+  
+  
 </body>
 </html>
