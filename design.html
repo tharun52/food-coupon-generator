@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Customize Number Style</title>
+  <style>
+    .controls {
+      margin-top: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    #previewCanvas {
+      border: 1px solid #ccc;
+      max-width: 100%;
+    }
+
+    .btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Customize Number Style</h1>
+  <canvas id="previewCanvas"></canvas>
+
+  <div class="controls">
+    <label>
+      Font Size:
+      <input type="number" id="fontSize" value="40" />
+    </label>
+
+    <label>
+      Font Family:
+      <select id="fontFamily">
+        <option value="Arial">Arial</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Verdana">Verdana</option>
+      </select>
+    </label>
+
+    <label>
+      Font Color:
+      <input type="color" id="fontColor" value="#000000" />
+    </label>
+
+    <label>
+      Position:
+      <select id="position">
+        <option value="top-left">Top Left</option>
+        <option value="top-right">Top Right</option>
+        <option value="center">Center</option>
+        <option value="bottom-left">Bottom Left</option>
+        <option value="bottom-right">Bottom Right</option>
+      </select>
+    </label>
+
+    <button class="btn" id="generateBtn">Generate</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("previewCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const uploadedImageData = localStorage.getItem("uploadedImage");
+
+    if (!uploadedImageData) {
+      alert("No uploaded image found. Redirecting...");
+      window.location.href = "index.html";
+    }
+
+    const img = new Image();
+    img.src = uploadedImageData;
+
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      updatePreview(); // initial draw
+    };
+
+    function updatePreview() {
+      const fontSize = document.getElementById("fontSize").value;
+      const fontFamily = document.getElementById("fontFamily").value;
+      const fontColor = document.getElementById("fontColor").value;
+      const position = document.getElementById("position").value;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      ctx.font = `${fontSize}px ${fontFamily}`;
+      ctx.fillStyle = fontColor;
+
+      const text = "555"; // static number for preview
+      const textWidth = ctx.measureText(text).width;
+      const textHeight = parseInt(fontSize, 10);
+
+      let x = 0;
+      let y = 0;
+
+      switch (position) {
+        case "top-left":
+          x = 10;
+          y = textHeight;
+          break;
+        case "top-right":
+          x = canvas.width - textWidth - 10;
+          y = textHeight;
+          break;
+        case "center":
+          x = (canvas.width - textWidth) / 2;
+          y = (canvas.height + textHeight) / 2;
+          break;
+        case "bottom-left":
+          x = 10;
+          y = canvas.height - 10;
+          break;
+        case "bottom-right":
+          x = canvas.width - textWidth - 10;
+          y = canvas.height - 10;
+          break;
+      }
+
+      ctx.fillText(text, x, y);
+    }
+
+    // Attach event listeners for live preview
+    document.getElementById("fontSize").addEventListener("input", updatePreview);
+    document.getElementById("fontFamily").addEventListener("change", updatePreview);
+    document.getElementById("fontColor").addEventListener("input", updatePreview);
+    document.getElementById("position").addEventListener("change", updatePreview);
+
+    // When user clicks "Generate", save canvas image and redirect
+    document.getElementById("generateBtn").addEventListener("click", () => {
+      const finalImage = canvas.toDataURL("image/png");
+      localStorage.setItem("editedImage", finalImage);
+      window.location.href = "generate.html";
+    });
+  </script>
+</body>
+</html>

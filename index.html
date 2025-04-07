@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Image</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="container">
+  <h1 class="title">Upload Your Food Coupon Background</h1>
+  
+  <input type="file" id="imageInput" class="file-input" accept="image/*" />
+  <button id="uploadBtn" class="btn">Upload</button>
+
+  <script>
+    // Clear previous image every time we load this page
+    window.onload = () => {
+      localStorage.removeItem("uploadedImage");
+    };
+
+    const imageInput = document.getElementById("imageInput");
+    const uploadBtn = document.getElementById("uploadBtn");
+
+    uploadBtn.addEventListener("click", () => {
+      const file = imageInput.files[0];
+
+      if (!file) {
+        alert("Please select an image first.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        localStorage.setItem("uploadedImage", e.target.result); // Save image as base64
+        window.location.href = "design.html"; // Redirect to design page
+      };
+      reader.readAsDataURL(file); // Converts file to base64
+    });
+  </script>
+</body>
+</html>
