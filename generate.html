@@ -21,11 +21,11 @@
   <div class="controls">
     <label>
       Rows:
-      <input type="number" id="rows" value="3" min="1"/>
+      <input type="number" id="rows" value="6" min="1"/>
     </label>
     <label>
       Columns:
-      <input type="number" id="cols" value="3" min="1"/>
+      <input type="number" id="cols" value="4" min="1"/>
     </label>
     <label>
       Border Color:
@@ -41,7 +41,7 @@
     </label>
     <label>
       End Number:
-      <input type="number" id="endNumber" value="9" min="0"/>
+      <input type="number" id="endNumber" value="24" min="0"/>
     </label>
     <label>
       Background Color:
@@ -121,7 +121,7 @@
 
     // Toggle custom page size input display
     pageSizePreset.addEventListener("change", () => {
-      customPageSizeDiv.style.display = (pageSizePreset.value === "custom") ? "block" : "none";
+      customPageSizeDiv.style.display = (pageSizePreset.value === "Custom") ? "block" : "none";
       updatePreview();
     });
 
@@ -162,8 +162,8 @@
           break;
         case "custom":
         default:
-          pageWidth = parseInt(pageWidthInput.value) || 1000;
-          pageHeight = parseInt(pageHeightInput.value) || 1000;
+          pageWidth = 595;
+          pageHeight = 842;
           break;
       }
 
