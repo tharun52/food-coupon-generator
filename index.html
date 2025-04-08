@@ -3,17 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Upload Image</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Token Generator</title>
+  <link rel="stylesheet" href="index.css" />
+  <link rel="icon" href="logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
 </head>
-<body class="container">
-  <h1 class="title">Upload Your Food Coupon Background</h1>
-  
-  <input type="file" id="imageInput" class="file-input" accept="image/*" />
-  <button id="uploadBtn" class="btn">Upload</button>
+<body>
+  <header class="navbar">
+    <div class="logo">
+      <img src="logo.png" alt="Logo" />
+      <span>Token Generator</span>
+    </div>
+    <div class="mode-toggle">
+      <button id="toggleModeBtn">🌙</button>
+    </div>
+  </header>
+
+  <main class="content">
+    <section class="intro animate-slide-in">
+      <h1>Upload Your Food Coupon Background</h1>
+      <p>
+        Generate beautiful, printable food coupons effortlessly. This tool helps you
+        create tokens for restaurants, food stalls, events, and more with just a few clicks.
+      </p>
+    </section>
+    <div class="upload-box animate-fade-in">
+      <label for="imageInput" class="custom-file-label">Choose Image</label>
+      <input type="file" id="imageInput" accept="image/*" />
+      <button id="uploadBtn" class="btn">Upload and Continue</button>
+    </div>
+    
+    <section class="instructions animate-slide-in">
+      <h2>How to Use Token Generator:</h2>
+      <ol>
+        <li>📷 Upload a background image (JPG or PNG)</li>
+        <li>🎨 Customize token layout in the next screen</li>
+        <li>🔢 Choose how many tokens you want</li>
+        <li>📄 Download a PDF with arranged token images</li>
+        <li>🖨️ Print and cut your tokens!</li>
+      </ol>
+    </section>
+
+    <section class="benefits animate-fade-in">
+      <h2>Why Choose Our Tool?</h2>
+      <ul>
+        <li>✅ No design experience needed</li>
+        <li>✅ Fast & user-friendly interface</li>
+        <li>✅ Custom numbering and grid sizes</li>
+        <li>✅ Works on desktop & mobile</li>
+      </ul>
+    </section>
+  </main>
 
   <script>
-    // Clear previous image every time we load this page
     window.onload = () => {
       localStorage.removeItem("uploadedImage");
     };
@@ -23,7 +65,6 @@
 
     uploadBtn.addEventListener("click", () => {
       const file = imageInput.files[0];
-
       if (!file) {
         alert("Please select an image first.");
         return;
@@ -31,10 +72,16 @@
 
       const reader = new FileReader();
       reader.onload = function (e) {
-        localStorage.setItem("uploadedImage", e.target.result); // Save image as base64
-        window.location.href = "design.html"; // Redirect to design page
+        localStorage.setItem("uploadedImage", e.target.result);
+        window.location.href = "design.html";
       };
-      reader.readAsDataURL(file); // Converts file to base64
+      reader.readAsDataURL(file);
+    });
+
+    const toggleBtn = document.getElementById("toggleModeBtn");
+    toggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+      toggleBtn.textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
     });
   </script>
 </body>
