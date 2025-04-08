@@ -4,38 +4,343 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Generate</title>
+  <!-- jsPDF from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .controls { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; }
+    .controls label { display: flex; flex-direction: column; }
+    #previewCanvas { border: 1px solid #ccc; margin-bottom: 20px; }
+    #customPageSize { display: none; }
+    button { padding: 10px 15px; background: #4CAF50; color: #fff; border: none; cursor: pointer; }
+  </style>
 </head>
 <body>
-  <h1>Generated Coupon Preview</h1>
-  <canvas id="finalCanvas"></canvas>
+  <h1>Coupon PDF Generator</h1>
+
+  <div class="controls">
+    <label>
+      Rows:
+      <input type="number" id="rows" value="3" min="1"/>
+    </label>
+    <label>
+      Columns:
+      <input type="number" id="cols" value="3" min="1"/>
+    </label>
+    <label>
+      Border Color:
+      <input type="color" id="borderColor" value="#000000"/>
+    </label>
+    <label>
+      Border Thickness:
+      <input type="number" id="borderThickness" value="2" min="0"/>
+    </label>
+    <label>
+      Start Number:
+      <input type="number" id="startNumber" value="1" min="0"/>
+    </label>
+    <label>
+      End Number:
+      <input type="number" id="endNumber" value="9" min="0"/>
+    </label>
+    <label>
+      Background Color:
+      <input type="color" id="backgroundColor" value="#ffffff"/>
+    </label>
+    <label>
+      Page Size:
+      <select id="pageSizePreset">
+        <option value="custom">Custom</option>
+        <option value="square">Square (1000 x 1000)</option>
+        <option value="A4">A4 (595 x 842)</option>
+        <option value="letter">Letter (612 x 792)</option>
+        <option value="legal">Legal (612 x 1008)</option>
+      </select>
+    </label>
+    <div id="customPageSize">
+      <label>
+        Page Width:
+        <input type="number" id="pageWidth" value="1000" min="100"/>
+      </label>
+      <label>
+        Page Height:
+        <input type="number" id="pageHeight" value="1000" min="100"/>
+      </label>
+    </div>
+  </div>
+
+  <canvas id="previewCanvas"></canvas>
+  <br/>
+  <button id="generatePdfBtn">Generate PDF</button>
 
   <script>
+    // Retrieve stored design values from localStorage
     const editedImage = localStorage.getItem("editedImage");
     const numberPosition = JSON.parse(localStorage.getItem("numberPosition"));
-    const fontSize = localStorage.getItem("fontSize") || "40";
-    const fontFamily = localStorage.getItem("fontFamily") || "Arial";
-    const fontColor = localStorage.getItem("fontColor") || "#000000";
+    const storedFontSize = parseFloat(localStorage.getItem("fontSize")) || 40;
+    const storedFontFamily = localStorage.getItem("fontFamily") || "Arial";
+    const storedFontColor = localStorage.getItem("fontColor") || "#000000";
 
     if (!editedImage || !numberPosition) {
       alert("No data found. Please go back and design the coupon.");
       window.location.href = "design.html";
     }
 
-    const canvas = document.getElementById("finalCanvas");
-    const ctx = canvas.getContext("2d");
+    // Global design parameters (from design page)
+    const designFontSize = storedFontSize;
+    const designFontFamily = storedFontFamily;
+    const designFontColor = storedFontColor;
+    const designNumberPosition = numberPosition; // { x, y } relative to the design image
 
-    const img = new Image();
-    img.src = editedImage;
-
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
-
-      ctx.font = `${fontSize}px ${fontFamily}`;
-      ctx.fillStyle = fontColor;
-      ctx.fillText("555", numberPosition.x, numberPosition.y);
+    // Create coupon design image
+    const couponImg = new Image();
+    couponImg.src = editedImage;
+    let designImageWidth, designImageHeight;
+    couponImg.onload = () => {
+      designImageWidth = couponImg.width;
+      designImageHeight = couponImg.height;
+      updatePreview();
     };
+
+    // Get references to preview canvas and controls
+    const previewCanvas = document.getElementById("previewCanvas");
+    const previewCtx = previewCanvas.getContext("2d");
+
+    const rowsInput = document.getElementById("rows");
+    const colsInput = document.getElementById("cols");
+    const borderColorInput = document.getElementById("borderColor");
+    const borderThicknessInput = document.getElementById("borderThickness");
+    const startNumberInput = document.getElementById("startNumber");
+    const endNumberInput = document.getElementById("endNumber");
+    const backgroundColorInput = document.getElementById("backgroundColor");
+    const pageSizePreset = document.getElementById("pageSizePreset");
+    const customPageSizeDiv = document.getElementById("customPageSize");
+    const pageWidthInput = document.getElementById("pageWidth");
+    const pageHeightInput = document.getElementById("pageHeight");
+    const generatePdfBtn = document.getElementById("generatePdfBtn");
+
+    // Toggle custom page size input display
+    pageSizePreset.addEventListener("change", () => {
+      customPageSizeDiv.style.display = (pageSizePreset.value === "custom") ? "block" : "none";
+      updatePreview();
+    });
+
+    // Update preview on control changes
+    document.querySelectorAll("input, select").forEach(el => {
+      el.addEventListener("input", updatePreview);
+      el.addEventListener("change", updatePreview);
+    });
+
+    // Update preview function
+    function updatePreview() {
+      const rows = parseInt(rowsInput.value);
+      const cols = parseInt(colsInput.value);
+      const borderColor = borderColorInput.value;
+      const borderThickness = parseFloat(borderThicknessInput.value);
+      const startNumber = parseInt(startNumberInput.value);
+      const endNumber = parseInt(endNumberInput.value);
+      const bgColor = backgroundColorInput.value;
+      
+      // Determine page dimensions from preset
+      let pageWidth, pageHeight;
+      switch(pageSizePreset.value) {
+        case "square":
+          pageWidth = 1000;
+          pageHeight = 1000;
+          break;
+        case "A4":
+          pageWidth = 595;
+          pageHeight = 842;
+          break;
+        case "letter":
+          pageWidth = 612;
+          pageHeight = 792;
+          break;
+        case "legal":
+          pageWidth = 612;
+          pageHeight = 1008;
+          break;
+        case "custom":
+        default:
+          pageWidth = parseInt(pageWidthInput.value) || 1000;
+          pageHeight = parseInt(pageHeightInput.value) || 1000;
+          break;
+      }
+
+      // Set preview canvas size
+      previewCanvas.width = pageWidth;
+      previewCanvas.height = pageHeight;
+      
+      // Fill background with selected color
+      previewCtx.fillStyle = bgColor;
+      previewCtx.fillRect(0, 0, pageWidth, pageHeight);
+
+      // Compute cell dimensions and subtract padding (cellPadding equals borderThickness here)
+      const cellPadding = borderThickness; 
+      const cellWidth = pageWidth / cols;
+      const cellHeight = pageHeight / rows;
+      const effectiveCellWidth = cellWidth - 2 * cellPadding;
+      const effectiveCellHeight = cellHeight - 2 * cellPadding;
+
+      let currentNumber = startNumber;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cellX = c * cellWidth;
+          const cellY = r * cellHeight;
+          
+          // Draw cell border
+          previewCtx.strokeStyle = borderColor;
+          previewCtx.lineWidth = borderThickness;
+          previewCtx.strokeRect(cellX, cellY, cellWidth, cellHeight);
+
+          if (currentNumber <= endNumber) {
+            // Calculate scale for coupon image to fit within effective cell area
+            const scale = Math.min(effectiveCellWidth / designImageWidth, effectiveCellHeight / designImageHeight);
+            const drawnWidth = designImageWidth * scale;
+            const drawnHeight = designImageHeight * scale;
+            // Center the image within the effective area inside the cell
+            const offsetX = cellX + cellPadding + (effectiveCellWidth - drawnWidth) / 2;
+            const offsetY = cellY + cellPadding + (effectiveCellHeight - drawnHeight) / 2;
+            previewCtx.drawImage(couponImg, offsetX, offsetY, drawnWidth, drawnHeight);
+
+            // Draw coupon number using the stored number position (scaled)
+            const scaledNumberX = offsetX + designNumberPosition.x * scale;
+            const scaledNumberY = offsetY + designNumberPosition.y * scale;
+            const scaledFontSize = designFontSize * scale;
+            previewCtx.font = `${scaledFontSize}px ${designFontFamily}`;
+            previewCtx.fillStyle = designFontColor;
+            // Use plain number (no leading zeros)
+            const couponText = currentNumber.toString();
+            previewCtx.fillText(couponText, scaledNumberX, scaledNumberY);
+          }
+          // Otherwise, leave the cell with just the background color.
+          currentNumber++;
+        }
+      }
+    }
+
+    // PDF generation function
+    async function generatePDF() {
+      const rows = parseInt(rowsInput.value);
+      const cols = parseInt(colsInput.value);
+      const borderColor = borderColorInput.value;
+      const borderThickness = parseFloat(borderThicknessInput.value);
+      const startNumber = parseInt(startNumberInput.value);
+      const endNumber = parseInt(endNumberInput.value);
+      const bgColor = backgroundColorInput.value;
+
+      let pageWidth, pageHeight;
+      switch(pageSizePreset.value) {
+        case "square":
+          pageWidth = 1000;
+          pageHeight = 1000;
+          break;
+        case "A4":
+          pageWidth = 595;
+          pageHeight = 842;
+          break;
+        case "letter":
+          pageWidth = 612;
+          pageHeight = 792;
+          break;
+        case "legal":
+          pageWidth = 612;
+          pageHeight = 1008;
+          break;
+        case "custom":
+        default:
+          pageWidth = parseInt(pageWidthInput.value) || 1000;
+          pageHeight = parseInt(pageHeightInput.value) || 1000;
+          break;
+      }
+
+      // High DPI settings: default jsPDF DPI is 72. For 300 DPI, use a scale factor.
+      const dpiFactor = 300 / 72; // roughly 4.17
+
+      // Create an offscreen canvas with higher resolution.
+      const offCanvas = document.createElement("canvas");
+      const offCtx = offCanvas.getContext("2d");
+
+      // Set offscreen canvas dimensions at high resolution.
+      offCanvas.width = pageWidth * dpiFactor;
+      offCanvas.height = pageHeight * dpiFactor;
+      
+      // Scale drawing operations so they use the original page dimensions.
+      offCtx.scale(dpiFactor, dpiFactor);
+
+      // Create jsPDF instance (we specify the page size in pixels)
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: pageWidth > pageHeight ? "landscape" : "portrait",
+        unit: "px",
+        format: [pageWidth, pageHeight]
+      });
+
+      let currentNumber = startNumber;
+      let pageCount = 0;
+      const totalCells = rows * cols;
+      const cellPadding = borderThickness;
+      const cellWidth = pageWidth / cols;
+      const cellHeight = pageHeight / rows;
+      const effectiveCellWidth = cellWidth - 2 * cellPadding;
+      const effectiveCellHeight = cellHeight - 2 * cellPadding;
+
+      // Loop through pages until all coupon numbers are processed.
+      while (currentNumber <= endNumber || pageCount === 0) {
+        // Clear the offscreen canvas and fill with the background color.
+        offCtx.fillStyle = bgColor;
+        offCtx.fillRect(0, 0, pageWidth, pageHeight);
+
+        // Draw each cell.
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const cellX = c * cellWidth;
+            const cellY = r * cellHeight;
+            offCtx.strokeStyle = borderColor;
+            offCtx.lineWidth = borderThickness;
+            offCtx.strokeRect(cellX, cellY, cellWidth, cellHeight);
+
+            if (currentNumber <= endNumber) {
+              // Draw coupon image scaled to fit within the effective area.
+              const scale = Math.min(effectiveCellWidth / designImageWidth, effectiveCellHeight / designImageHeight);
+              const drawnWidth = designImageWidth * scale;
+              const drawnHeight = designImageHeight * scale;
+              const offsetX = cellX + cellPadding + (effectiveCellWidth - drawnWidth) / 2;
+              const offsetY = cellY + cellPadding + (effectiveCellHeight - drawnHeight) / 2;
+              offCtx.drawImage(couponImg, offsetX, offsetY, drawnWidth, drawnHeight);
+
+              // Overlay coupon number.
+              const scaledNumberX = offsetX + designNumberPosition.x * scale;
+              const scaledNumberY = offsetY + designNumberPosition.y * scale;
+              const scaledFontSize = designFontSize * scale;
+              offCtx.font = `${scaledFontSize}px ${designFontFamily}`;
+              offCtx.fillStyle = designFontColor;
+              // Plain number (no leading zeros)
+              const couponText = currentNumber.toString();
+              offCtx.fillText(couponText, scaledNumberX, scaledNumberY);
+            } else {
+              // Fill empty cells with the background color.
+              offCtx.fillStyle = bgColor;
+              offCtx.fillRect(cellX, cellY, cellWidth, cellHeight);
+            }
+            currentNumber++;
+          }
+        }
+        
+        // Convert the offscreen canvas (high resolution) to an image data URL.
+        const imgData = offCanvas.toDataURL("image/png");
+        if (pageCount > 0) {
+          pdf.addPage();
+        }
+        // Add the high-quality image to the PDF page.
+        pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
+        pageCount++;
+      }
+
+      pdf.save("coupons.pdf");
+    }
+
+    generatePdfBtn.addEventListener("click", generatePDF);
   </script>
 </body>
 </html>
