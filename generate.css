@@ -1,0 +1,162 @@
+/* Base Reset and Fonts */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  html, body {
+    font-family: 'Roboto', sans-serif;
+    transition: background 0.3s, color 0.3s;
+  }
+  body {
+    background-color: #ffffff;
+    color: #000000;
+    min-height: 100vh;
+  }
+  body.dark-mode {
+    background-color: #000000;
+    color: #ffffff;
+  }
+  
+  /* Navbar */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #000046, #1cb5e0);
+    padding: 1rem 2rem;
+    color: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: white;
+    font-size: 1.8rem;
+    font-weight: bold;
+  }
+  .logo img {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+  }
+  .mode-toggle button {
+    background: transparent;
+    border: none;
+    font-size: 1.7rem;
+    cursor: pointer;
+    color: white;
+  }
+  
+  /* Main Content Layout */
+  .main-content {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 2rem;
+    gap: 2rem;
+    justify-content: center;
+  }
+  
+  /* Preview Section */
+  .preview-section {
+    flex: 1;
+    min-width: 300px;
+    max-width: 600px;
+  }
+  #previewCanvasContainer {
+    width: 100%;
+    border: 1px solid #ccc;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  #previewCanvas {
+    width: 100%;
+    height: auto;
+  }
+  .preview-info {
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  /* Options Section */
+  .options-section {
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fafafa;
+  }
+  .options-section h2 {
+    margin-bottom: 0.5rem;
+    color: #000046;
+  }
+  .options-section p {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  .control-group {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .control-group label {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  .control-group input,
+  .control-group select {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  .control-group small {
+    color: #777;
+    margin-top: 0.3rem;
+  }
+  
+  /* Custom Page Size Inputs */
+  #customPageSize {
+    display: none;
+    margin-bottom: 1rem;
+  }
+  
+  /* Generate Button */
+  .btn {
+    width: 100%;
+    padding: 0.8rem;
+    background: linear-gradient(135deg, #000046, #1cb5e0);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .btn:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 20px rgba(28, 181, 224, 0.3);
+  }
+  
+  /* Responsive Layout */
+  @media (max-width: 768px) {
+    .main-content {
+      flex-direction: column;
+      align-items: center;
+    }
+    .preview-section, .options-section {
+      max-width: 100%;
+      width: 100%;
+    }
+  }
+  

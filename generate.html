@@ -3,75 +3,130 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Generate</title>
+  <title>Generate Coupons - Token Generator</title>
   <!-- jsPDF from CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .controls { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; }
-    .controls label { display: flex; flex-direction: column; }
-    #previewCanvas { border: 1px solid #ccc; margin-bottom: 20px; }
-    #customPageSize { display: none; }
-    button { padding: 10px 15px; background: #4CAF50; color: #fff; border: none; cursor: pointer; }
-  </style>
+  <link rel="stylesheet" href="generate.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <h1>Coupon PDF Generator</h1>
-
-  <div class="controls">
-    <label>
-      Rows:
-      <input type="number" id="rows" value="6" min="1"/>
-    </label>
-    <label>
-      Columns:
-      <input type="number" id="cols" value="4" min="1"/>
-    </label>
-    <label>
-      Border Color:
-      <input type="color" id="borderColor" value="#000000"/>
-    </label>
-    <label>
-      Border Thickness:
-      <input type="number" id="borderThickness" value="2" min="0"/>
-    </label>
-    <label>
-      Start Number:
-      <input type="number" id="startNumber" value="1" min="0"/>
-    </label>
-    <label>
-      End Number:
-      <input type="number" id="endNumber" value="24" min="0"/>
-    </label>
-    <label>
-      Background Color:
-      <input type="color" id="backgroundColor" value="#ffffff"/>
-    </label>
-    <label>
-      Page Size:
-      <select id="pageSizePreset">
-        <option value="custom">Custom</option>
-        <option value="square">Square (1000 x 1000)</option>
-        <option value="A4" selected>A4 (595 x 842)</option> <!-- Default selected -->
-        <option value="letter">Letter (612 x 792)</option>
-        <option value="legal">Legal (612 x 1008)</option>
-      </select>      
-    </label>
-    <div id="customPageSize">
-      <label>
-        Page Width:
-        <input type="number" id="pageWidth" value="1000" min="100"/>
-      </label>
-      <label>
-        Page Height:
-        <input type="number" id="pageHeight" value="1000" min="100"/>
-      </label>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="logo">
+      <a href="index.html">
+        <img src="logo.png" alt="Logo" />
+        <span>Token Generator</span>
+      </a>
     </div>
-  </div>
+    <div class="mode-toggle">
+      <button id="toggleModeBtn">🌙</button>
+    </div>
+  </header>
 
-  <canvas id="previewCanvas"></canvas>
-  <br/>
-  <button id="generatePdfBtn">Generate PDF</button>
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Preview Section -->
+    <section class="preview-section">
+      <h2>PDF Preview</h2>
+      <div id="previewCanvasContainer">
+        <canvas id="previewCanvas"></canvas>
+      </div>
+      <p class="preview-info">
+        This preview displays one page of your coupon PDF. Adjust the options on the right to change how your coupons will appear.
+      </p>
+    </section>
+
+    <!-- Controls Section -->
+    <section class="options-section">
+      <h2>PDF Options &amp; Instructions</h2>
+      <p>Customize the layout and design of your coupon grid:</p>
+      
+      <div class="control-group">
+        <label for="rows">
+          Rows:
+          <input type="number" id="rows" value="6" min="1" />
+          <small>Number of coupon rows per page.</small>
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label for="cols">
+          Columns:
+          <input type="number" id="cols" value="4" min="1" />
+          <small>Number of coupon columns per page.</small>
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label for="borderColor">
+          Border Color:
+          <input type="color" id="borderColor" value="#000000" />
+          <small>Color of the page border that frames your coupon grid.</small>
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label for="borderThickness">
+          Border Thickness:
+          <input type="number" id="borderThickness" value="2" min="0" />
+          <small>Thickness (in pixels) of the border around the page.</small>
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label for="startNumber">
+          Start Number:
+          <input type="number" id="startNumber" value="1" min="0" />
+          <small>The first coupon number in your series.</small>
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label for="endNumber">
+          End Number:
+          <input type="number" id="endNumber" value="24" min="0" />
+          <small>The last coupon number. If there are empty cells, they will be filled with the background color.</small>
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label for="backgroundColor">
+          Background Color:
+          <input type="color" id="backgroundColor" value="#ffffff" />
+          <small>The page background color for your PDF. This appears behind your coupons.</small>
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label for="pageSizePreset">
+          Page Size:
+          <select id="pageSizePreset">
+            <option value="custom">Custom</option>
+            <option value="square">Square (1000 x 1000)</option>
+            <option value="A4" selected>A4 (595 x 842)</option>
+            <option value="letter">Letter (612 x 792)</option>
+            <option value="legal">Legal (612 x 1008)</option>
+          </select>
+          <small>Select a preset page size. Custom lets you define your own dimensions.</small>
+        </label>
+      </div>
+
+      <div id="customPageSize" class="control-group">
+        <label for="pageWidth">
+          Page Width:
+          <input type="number" id="pageWidth" value="595" min="100" />
+          <small>Define page width if custom is selected.</small>
+        </label>
+        <label for="pageHeight">
+          Page Height:
+          <input type="number" id="pageHeight" value="842" min="100" />
+          <small>Define page height if custom is selected.</small>
+        </label>
+      </div>
+
+      <button class="btn" id="generatePdfBtn">Generate PDF</button>
+    </section>
+  </main>
 
   <script>
     // Retrieve stored design values from localStorage
@@ -82,7 +137,7 @@
     const storedFontColor = localStorage.getItem("fontColor") || "#000000";
 
     if (!editedImage || !numberPosition) {
-      alert("No data found. Please go back and design the coupon.");
+      alert("No coupon design data found. Please go back and design the coupon.");
       window.location.href = "design.html";
     }
 
@@ -119,19 +174,23 @@
     const pageHeightInput = document.getElementById("pageHeight");
     const generatePdfBtn = document.getElementById("generatePdfBtn");
 
-    // Toggle custom page size input display
+    // Toggle custom page size inputs display based on preset
     pageSizePreset.addEventListener("change", () => {
-      customPageSizeDiv.style.display = (pageSizePreset.value === "Custom") ? "block" : "none";
+      if (pageSizePreset.value === "custom") {
+        customPageSizeDiv.style.display = "block";
+      } else {
+        customPageSizeDiv.style.display = "none";
+      }
       updatePreview();
     });
 
-    // Update preview on control changes
+    // Update preview when controls change
     document.querySelectorAll("input, select").forEach(el => {
       el.addEventListener("input", updatePreview);
       el.addEventListener("change", updatePreview);
     });
 
-    // Update preview function
+    // Update preview function – draws a grid preview with coupon images and numbers.
     function updatePreview() {
       const rows = parseInt(rowsInput.value);
       const cols = parseInt(colsInput.value);
@@ -162,8 +221,8 @@
           break;
         case "custom":
         default:
-          pageWidth = 595;
-          pageHeight = 842;
+          pageWidth = parseInt(pageWidthInput.value) || 595;
+          pageHeight = parseInt(pageHeightInput.value) || 842;
           break;
       }
 
@@ -171,55 +230,59 @@
       previewCanvas.width = pageWidth;
       previewCanvas.height = pageHeight;
       
-      // Fill background with selected color
+      // Fill page with background color
       previewCtx.fillStyle = bgColor;
       previewCtx.fillRect(0, 0, pageWidth, pageHeight);
 
-      // Compute cell dimensions and subtract padding (cellPadding equals borderThickness here)
+      // Draw one outer border around the page
+      previewCtx.strokeStyle = borderColor;
+      previewCtx.lineWidth = borderThickness;
+      previewCtx.strokeRect(borderThickness / 2, borderThickness / 2, pageWidth - borderThickness, pageHeight - borderThickness);
+
+      // Calculate cell dimensions inside the border
+      const availableWidth = pageWidth - 2 * borderThickness;
+      const availableHeight = pageHeight - 2 * borderThickness;
+      const cellWidth = availableWidth / cols;
+      const cellHeight = availableHeight / rows;
       const cellPadding = borderThickness; 
-      const cellWidth = pageWidth / cols;
-      const cellHeight = pageHeight / rows;
       const effectiveCellWidth = cellWidth - 2 * cellPadding;
       const effectiveCellHeight = cellHeight - 2 * cellPadding;
 
       let currentNumber = startNumber;
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
-          const cellX = c * cellWidth;
-          const cellY = r * cellHeight;
+          const cellX = borderThickness + c * cellWidth;
+          const cellY = borderThickness + r * cellHeight;
           
-          // Draw cell border
+          // Draw cell border (for preview, not included in final PDF)
           previewCtx.strokeStyle = borderColor;
           previewCtx.lineWidth = borderThickness;
           previewCtx.strokeRect(cellX, cellY, cellWidth, cellHeight);
 
           if (currentNumber <= endNumber) {
-            // Calculate scale for coupon image to fit within effective cell area
+            // Calculate scale so that coupon image fits the effective cell area.
             const scale = Math.min(effectiveCellWidth / designImageWidth, effectiveCellHeight / designImageHeight);
             const drawnWidth = designImageWidth * scale;
             const drawnHeight = designImageHeight * scale;
-            // Center the image within the effective area inside the cell
+            // Center the coupon image within the cell effective area.
             const offsetX = cellX + cellPadding + (effectiveCellWidth - drawnWidth) / 2;
             const offsetY = cellY + cellPadding + (effectiveCellHeight - drawnHeight) / 2;
             previewCtx.drawImage(couponImg, offsetX, offsetY, drawnWidth, drawnHeight);
 
-            // Draw coupon number using the stored number position (scaled)
+            // Overlay coupon number (scaled with design position and font size).
             const scaledNumberX = offsetX + designNumberPosition.x * scale;
             const scaledNumberY = offsetY + designNumberPosition.y * scale;
             const scaledFontSize = designFontSize * scale;
             previewCtx.font = `${scaledFontSize}px ${designFontFamily}`;
             previewCtx.fillStyle = designFontColor;
-            // Use plain number (no leading zeros)
-            const couponText = currentNumber.toString();
-            previewCtx.fillText(couponText, scaledNumberX, scaledNumberY);
+            previewCtx.fillText(currentNumber.toString(), scaledNumberX, scaledNumberY);
           }
-          // Otherwise, leave the cell with just the background color.
           currentNumber++;
         }
       }
     }
 
-    // PDF generation function
+    // PDF generation function with high DPI for clear print quality.
     async function generatePDF() {
       const rows = parseInt(rowsInput.value);
       const cols = parseInt(colsInput.value);
@@ -249,26 +312,20 @@
           break;
         case "custom":
         default:
-          pageWidth = parseInt(pageWidthInput.value) || 1000;
-          pageHeight = parseInt(pageHeightInput.value) || 1000;
+          pageWidth = parseInt(pageWidthInput.value) || 595;
+          pageHeight = parseInt(pageHeightInput.value) || 842;
           break;
       }
 
-      // High DPI settings: default jsPDF DPI is 72. For 300 DPI, use a scale factor.
-      const dpiFactor = 300 / 72; // roughly 4.17
-
-      // Create an offscreen canvas with higher resolution.
+      // High DPI: use dpiFactor for 300 DPI.
+      const dpiFactor = 300 / 72;
       const offCanvas = document.createElement("canvas");
       const offCtx = offCanvas.getContext("2d");
 
-      // Set offscreen canvas dimensions at high resolution.
       offCanvas.width = pageWidth * dpiFactor;
       offCanvas.height = pageHeight * dpiFactor;
-      
-      // Scale drawing operations so they use the original page dimensions.
       offCtx.scale(dpiFactor, dpiFactor);
 
-      // Create jsPDF instance (we specify the page size in pixels)
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({
         orientation: pageWidth > pageHeight ? "landscape" : "portrait",
@@ -278,30 +335,36 @@
 
       let currentNumber = startNumber;
       let pageCount = 0;
-      const totalCells = rows * cols;
+
+      const availableWidth = pageWidth - 2 * borderThickness;
+      const availableHeight = pageHeight - 2 * borderThickness;
+      const cellWidth = availableWidth / cols;
+      const cellHeight = availableHeight / rows;
       const cellPadding = borderThickness;
-      const cellWidth = pageWidth / cols;
-      const cellHeight = pageHeight / rows;
       const effectiveCellWidth = cellWidth - 2 * cellPadding;
       const effectiveCellHeight = cellHeight - 2 * cellPadding;
 
-      // Loop through pages until all coupon numbers are processed.
+      // Loop through pages until all coupons are processed.
       while (currentNumber <= endNumber || pageCount === 0) {
-        // Clear the offscreen canvas and fill with the background color.
         offCtx.fillStyle = bgColor;
         offCtx.fillRect(0, 0, pageWidth, pageHeight);
 
-        // Draw each cell.
+        // Draw a single outer border.
+        offCtx.strokeStyle = borderColor;
+        offCtx.lineWidth = borderThickness;
+        offCtx.strokeRect(borderThickness/2, borderThickness/2, pageWidth - borderThickness, pageHeight - borderThickness);
+
         for (let r = 0; r < rows; r++) {
           for (let c = 0; c < cols; c++) {
-            const cellX = c * cellWidth;
-            const cellY = r * cellHeight;
+            const cellX = borderThickness + c * cellWidth;
+            const cellY = borderThickness + r * cellHeight;
+
+            // Optional: Draw cell borders for preview (comment out if not desired).
             offCtx.strokeStyle = borderColor;
             offCtx.lineWidth = borderThickness;
             offCtx.strokeRect(cellX, cellY, cellWidth, cellHeight);
 
             if (currentNumber <= endNumber) {
-              // Draw coupon image scaled to fit within the effective area.
               const scale = Math.min(effectiveCellWidth / designImageWidth, effectiveCellHeight / designImageHeight);
               const drawnWidth = designImageWidth * scale;
               const drawnHeight = designImageHeight * scale;
@@ -309,17 +372,13 @@
               const offsetY = cellY + cellPadding + (effectiveCellHeight - drawnHeight) / 2;
               offCtx.drawImage(couponImg, offsetX, offsetY, drawnWidth, drawnHeight);
 
-              // Overlay coupon number.
               const scaledNumberX = offsetX + designNumberPosition.x * scale;
               const scaledNumberY = offsetY + designNumberPosition.y * scale;
               const scaledFontSize = designFontSize * scale;
               offCtx.font = `${scaledFontSize}px ${designFontFamily}`;
               offCtx.fillStyle = designFontColor;
-              // Plain number (no leading zeros)
-              const couponText = currentNumber.toString();
-              offCtx.fillText(couponText, scaledNumberX, scaledNumberY);
+              offCtx.fillText(currentNumber.toString(), scaledNumberX, scaledNumberY);
             } else {
-              // Fill empty cells with the background color.
               offCtx.fillStyle = bgColor;
               offCtx.fillRect(cellX, cellY, cellWidth, cellHeight);
             }
@@ -327,12 +386,8 @@
           }
         }
         
-        // Convert the offscreen canvas (high resolution) to an image data URL.
         const imgData = offCanvas.toDataURL("image/png");
-        if (pageCount > 0) {
-          pdf.addPage();
-        }
-        // Add the high-quality image to the PDF page.
+        if (pageCount > 0) pdf.addPage();
         pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
         pageCount++;
       }
@@ -341,6 +396,13 @@
     }
 
     generatePdfBtn.addEventListener("click", generatePDF);
+
+    // Dark mode toggle for generate.html
+    const toggleBtn = document.getElementById("toggleModeBtn");
+    toggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+      toggleBtn.textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
+    });
   </script>
 </body>
 </html>
