@@ -3,99 +3,93 @@
 <head>
   <meta charset="UTF-8" />
   <title>Customize Number Style</title>
-  <link rel="stylesheet" href="style.css"/>
-  <style>
-    #canvasContainer {
-      width: 500px;
-      height: 500px;
-      overflow: hidden;
-      border: 1px solid #ccc;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    canvas {
-      max-width: 100%;
-      max-height: 100%;
-    }
-
-    .controls {
-      margin-top: 20px;
-    }
-    select#fontFamily option {
-      font-size: 16px;
-      padding: 4px;
-    }
-
-  </style>
+  <link rel="stylesheet" href="design.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <h1>Customize Number Style</h1>
-  
-  <div id="canvasContainer">
-    <canvas id="previewCanvas"></canvas>
-  </div>
+  <header class="navbar">
+    <div class="logo">
+      <a href="index.html">
+        <img src="logo.png" alt="Logo" />
+        <span>Token Generator</span>
+      </a>
+    </div>
+    <div class="mode-toggle">
+      <button id="toggleModeBtn">🌙</button>
+    </div>
+  </header>
 
-  <div class="controls">
-    <label>
-      Font Size:
-      <input type="number" id="fontSize" value="40" step="2" />
-    </label>
+  <main class="main-content">
+    <div id="canvasContainer">
+      <canvas id="previewCanvas"></canvas>
+    </div>
 
-    <label>
-      Font Family:
-      <select id="fontFamily">
-        <option value="Arial" style="font-family: Arial;">Arial (001)</option>
-        <option value="Georgia" style="font-family: Georgia;">Georgia (001)</option>
-        <option value="Courier New" style="font-family: 'Courier New';">Courier New (001)</option>
-        <option value="Verdana" style="font-family: Verdana;">Verdana (001)</option>
-        <option value="Times New Roman" style="font-family: 'Times New Roman';">Times New Roman (001)</option>
-        <option value="Comic Sans MS" style="font-family: 'Comic Sans MS';">Comic Sans MS (001)</option>
-        <option value="Impact" style="font-family: Impact;">Impact (001)</option>
-        <option value="Tahoma" style="font-family: Tahoma;">Tahoma (001)</option>
-        <option value="Trebuchet MS" style="font-family: 'Trebuchet MS';">Trebuchet MS (001)</option>
-        <option value="Lucida Console" style="font-family: 'Lucida Console';">Lucida Console (001)</option>
-        
-        <!-- 10 More Fonts -->
-        <option value="Franklin Gothic Medium" style="font-family: 'Franklin Gothic Medium';">Franklin Gothic Medium (001)</option>
-        <option value="Gill Sans" style="font-family: 'Gill Sans';">Gill Sans (001)</option>
-        <option value="Calibri" style="font-family: Calibri;">Calibri (001)</option>
-        <option value="Cambria" style="font-family: Cambria;">Cambria (001)</option>
-        <option value="Garamond" style="font-family: Garamond;">Garamond (001)</option>
-        <option value="Rockwell" style="font-family: Rockwell;">Rockwell (001)</option>
-        <option value="Segoe UI" style="font-family: 'Segoe UI';">Segoe UI (001)</option>
-        <option value="Palatino Linotype" style="font-family: 'Palatino Linotype';">Palatino Linotype (001)</option>
-        <option value="Perpetua" style="font-family: Perpetua;">Perpetua (001)</option>
-        <option value="Century Gothic" style="font-family: 'Century Gothic';">Century Gothic (001)</option>
-      </select>
-    </label>
-    
-    
+    <div class="controls">
+      <h2>Customize Token Number</h2>
+      <p><strong>Instructions:</strong> Choose how your token number (e.g., 001) should look on the image.</p>
 
-    <label>
-      Font Color:
-      <input type="color" id="fontColor" value="#000000" />
-    </label>
+      <label>
+        <strong>Font Size:</strong><br>
+        <input type="number" id="fontSize" value="40" step="2" />
+        <small>Adjust the number size</small>
+      </label>
 
-    <label>Position:</label>
-    <select id="positionSelect">
-      <option value="">-- Choose Position --</option>
-      <option value="top-left">Top Left</option>
-      <option value="top-right">Top Right</option>
-      <option value="bottom-left">Bottom Left</option>
-      <option value="bottom-right">Bottom Right</option>
-      <option value="center">Center</option>
-    </select>
+      <label>
+        <strong>Font Family:</strong><br>
+        <select id="fontFamily">
+          <!-- Fonts -->
+          <option value="Arial" style="font-family: Arial;">Arial (001)</option>
+          <option value="Georgia" style="font-family: Georgia;">Georgia (001)</option>
+          <option value="Courier New" style="font-family: 'Courier New';">Courier New (001)</option>
+          <option value="Verdana" style="font-family: Verdana;">Verdana (001)</option>
+          <option value="Times New Roman" style="font-family: 'Times New Roman';">Times New Roman (001)</option>
+          <option value="Comic Sans MS" style="font-family: 'Comic Sans MS';">Comic Sans MS (001)</option>
+          <option value="Impact" style="font-family: Impact;">Impact (001)</option>
+          <option value="Tahoma" style="font-family: Tahoma;">Tahoma (001)</option>
+          <option value="Trebuchet MS" style="font-family: 'Trebuchet MS';">Trebuchet MS (001)</option>
+          <option value="Lucida Console" style="font-family: 'Lucida Console';">Lucida Console (001)</option>
+          <option value="Franklin Gothic Medium" style="font-family: 'Franklin Gothic Medium';">Franklin Gothic Medium (001)</option>
+          <option value="Gill Sans" style="font-family: 'Gill Sans';">Gill Sans (001)</option>
+          <option value="Calibri" style="font-family: Calibri;">Calibri (001)</option>
+          <option value="Cambria" style="font-family: Cambria;">Cambria (001)</option>
+          <option value="Garamond" style="font-family: Garamond;">Garamond (001)</option>
+          <option value="Rockwell" style="font-family: Rockwell;">Rockwell (001)</option>
+          <option value="Segoe UI" style="font-family: 'Segoe UI';">Segoe UI (001)</option>
+          <option value="Palatino Linotype" style="font-family: 'Palatino Linotype';">Palatino Linotype (001)</option>
+          <option value="Perpetua" style="font-family: Perpetua;">Perpetua (001)</option>
+          <option value="Century Gothic" style="font-family: 'Century Gothic';">Century Gothic (001)</option>
+        </select>
+        <small>Select your preferred font style</small>
+      </label>
 
-    <button class="btn" id="generateBtn">Generate</button>
-  </div>
+      <label>
+        <strong>Font Color:</strong><br>
+        <input type="color" id="fontColor" value="#000000" />
+        <small>Pick a color for the text</small>
+      </label>
+
+      <label>
+        <strong>Position:</strong><br>
+        <select id="positionSelect">
+          <option value="">-- Choose Position --</option>
+          <option value="top-left">Top Left</option>
+          <option value="top-right">Top Right</option>
+          <option value="bottom-left">Bottom Left</option>
+          <option value="bottom-right">Bottom Right</option>
+          <option value="center">Center</option>
+        </select>
+        <small>Where should the number appear on the image?</small>
+      </label>
+
+      <button class="btn" id="generateBtn">Generate</button>
+    </div>
+  </main>
 
   <script>
     const canvas = document.getElementById("previewCanvas");
     const ctx = canvas.getContext("2d");
     const img = new Image();
-    const text = "001"; // three-digit number
+    const text = "001";
 
     let fontSize = 40;
     let fontFamily = "Arial";
@@ -174,7 +168,7 @@
       fontSize = parseInt(document.getElementById("fontSize").value);
       fontFamily = document.getElementById("fontFamily").value;
       fontColor = document.getElementById("fontColor").value;
-      applyPosition(selectedPosition); // Reapply position after style change
+      applyPosition(selectedPosition);
     }
 
     document.getElementById("positionSelect").addEventListener("change", (e) => {
@@ -197,10 +191,17 @@
       localStorage.setItem("fontFamily", fontFamily);
       localStorage.setItem("fontColor", fontColor);
 
-      drawCanvas(); // Show preview again
+      drawCanvas();
 
       window.location.href = "generate.html";
     };
+
+    // Toggle dark mode
+    const toggleBtn = document.getElementById("toggleModeBtn");
+    toggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+      toggleBtn.textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
+    });
   </script>
 </body>
 </html>
